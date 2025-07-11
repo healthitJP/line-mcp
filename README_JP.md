@@ -13,7 +13,7 @@ LINE MCP サーバーは、LINEメッセージングサービスとAIアシス�
 
 ## 主な機能
 
-- **LINEログイン**: 環境変数を使用したLINE認証
+- **LINEログイン**: コマンドライン引数を使用したLINE認証
 - **連絡先管理**: 検索とトークン最適化機能付きの連絡先取得
 - **メッセージ送信**: LINE ユーザーへのメッセージ送信（MID指定）
 - **スマート検索**: トークン制限によるレスポンス最適化
@@ -41,7 +41,7 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 ### ツール一覧
 
 #### 1. `login`
-**説明**: 環境変数を使用してLINEにログインします
+**説明**: コマンドライン引数を使用してLINEにログインします
 
 **パラメータ**: なし
 
@@ -66,15 +66,6 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 
 ## セットアップ
 
-### 環境変数の設定
-
-以下の環境変数を設定してください：
-
-```bash
-LINE_EMAIL=your_line_email@example.com
-LINE_PASSWORD=your_line_password
-```
-
 ### Claude Desktop での設定
 
 `claude_desktop_config.json` ファイルに以下の設定を追加してください：
@@ -87,15 +78,13 @@ LINE_PASSWORD=your_line_password
   "mcpServers": {
     "line-mcp": {
       "command": "npx",
-      "args": ["line-mcp"],
-      "env": {
-        "LINE_EMAIL": "your_line_email@example.com",
-        "LINE_PASSWORD": "your_line_password"
-      }
+      "args": ["line-mcp", "your_line_email@example.com", "your_line_password"]
     }
   }
 }
 ```
+
+**重要**: `your_line_email@example.com` と `your_line_password` を実際のLINEアカウントの認証情報に置き換えてください。
 
 ## 依存関係
 
@@ -120,7 +109,7 @@ LINE_PASSWORD=your_line_password
 #### 1. ログインできない
 **症状**: `login`ツールでエラーが発生
 **解決方法**:
-- LINE_EMAILとLINE_PASSWORD環境変数が正しく設定されているか確認
+- Claude Desktop設定でコマンドライン引数（メールアドレスとパスワード）が正しく設定されているか確認
 - LINEアカウントが有効で、正しい認証情報を使用しているか確認
 - 2段階認証が有効な場合は、アプリパスワードの使用を検討
 
@@ -155,7 +144,7 @@ MIT License
 ## サポート
 
 問題が発生した場合は、以下を確認してください：
-1. 環境変数の設定
+1. Claude Desktop でのコマンドライン引数設定
 2. LINEアカウントの状態
 3. ネットワーク接続
 4. Claude Desktop の設定

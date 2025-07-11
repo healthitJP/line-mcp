@@ -41,7 +41,7 @@ This server enables AI assistants to:
 ### Available Tools
 
 #### 1. `login`
-**Description**: Login to LINE using environment variables
+**Description**: Login to LINE using command line arguments
 
 **Parameters**: None
 
@@ -66,15 +66,6 @@ This server enables AI assistants to:
 
 ## Setup
 
-### Environment Variables
-
-Set the following environment variables:
-
-```bash
-LINE_EMAIL=your_line_email@example.com
-LINE_PASSWORD=your_line_password
-```
-
 ### Claude Desktop Configuration
 
 Add the following configuration to your `claude_desktop_config.json` file:
@@ -82,22 +73,18 @@ Add the following configuration to your `claude_desktop_config.json` file:
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-
 ```json
 {
   "mcpServers": {
     "line-mcp": {
       "command": "npx",
-      "args": ["line-mcp"],
-      "env": {
-        "LINE_EMAIL": "your_line_email@example.com",
-        "LINE_PASSWORD": "your_line_password"
-      }
+      "args": ["line-mcp", "your_line_email@example.com", "your_line_password"]
     }
   }
 }
 ```
 
+**Important**: Replace `your_line_email@example.com` and `your_line_password` with your actual LINE account credentials.
 
 ## Dependencies
 
@@ -122,7 +109,7 @@ Main dependencies:
 #### 1. Cannot Login
 **Symptoms**: Error occurs with `login` tool
 **Solutions**:
-- Check if LINE_EMAIL and LINE_PASSWORD environment variables are set correctly
+- Check if command line arguments (email and password) are correctly set in Claude Desktop configuration
 - Verify LINE account is valid and using correct credentials
 - Consider using app password if 2FA is enabled
 
@@ -157,7 +144,7 @@ Pull requests and issue reports are welcome.
 ## Support
 
 If you encounter issues, please check:
-1. Environment variable configuration
+1. Command line arguments configuration in Claude Desktop
 2. LINE account status
 3. Network connection
 4. Claude Desktop configuration

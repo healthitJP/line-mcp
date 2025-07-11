@@ -3,9 +3,19 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { get_encoding } from "tiktoken";
-import 'dotenv/config';
 
 import { loginWithPassword } from "@evex/linejs";
+
+
+const args = process.argv.slice(2);
+const EMAIL = args[0];
+const PASSWORD = args[1];
+
+if (!EMAIL || !PASSWORD) {
+  console.error("Usage: npx line-mcp <email> <password>");
+  console.error("Example: npx line-mcp user@example.com mypassword");
+  process.exit(1);
+}
 
 interface Contact {
   mid: string;
@@ -20,7 +30,7 @@ interface FilteredContact {
 
 const server = new McpServer({
   name: "line-mcp",
-  version: "0.1.3"
+  version: "0.1.5"
 });
 
 let client: any = null;
@@ -40,32 +50,19 @@ function calculateTokens(data: any): number {
 server.registerTool("login",
   {
     title: "Login to LINE",
-    description: "Login to LINE using email and password from environment variables",
+    description: "Login to LINE using email and password from command line arguments",
     inputSchema: {}
   },
   async () => {
     try {
-      const email = process.env.LINE_EMAIL;
-      const password = process.env.LINE_PASSWORD;
-
-      if (!email || !password) {
-        return {
-          content: [{
-            type: "text",
-            text: "Error: Please set LINE_EMAIL and LINE_PASSWORD environment variables"
-          }],
-          isError: true
-        };
-      }
-
       loginStatus = 'logging_in';
       loginError = null;
       lastPincode = null;
 
       const loginResult = await new Promise<{success: boolean, pincode?: string, error?: string}>((resolve) => {
         loginWithPassword({
-          email: email,
-          password: password,
+          email: EMAIL,
+          password: PASSWORD,
           onPincodeRequest(pincode) {
             console.log('Pincode required:', pincode);
             lastPincode = pincode;
