@@ -45,19 +45,14 @@ This server enables AI assistants to:
 
 **Parameters**: None
 
-#### 2. `status_login`
-**Description**: Check current login status
-
-**Parameters**: None
-
-#### 3. `get_contacts`
+#### 2. `get_contacts`
 **Description**: Get contacts with optional search filter and token limits
 
 **Parameters**:
 - `search` (optional, string): Search filter by contact name
 - `maxTokens` (optional, number): Token limit for response
 
-#### 4. `send_message`
+#### 3. `send_message`
 **Description**: Send message to specified user
 
 **Parameters**:
@@ -66,6 +61,20 @@ This server enables AI assistants to:
 
 ## Setup
 
+### Command Line Arguments
+
+The LINE MCP server requires three command line arguments:
+
+1. **EMAIL**: Your LINE account email address
+2. **PASSWORD**: Your LINE account password  
+3. **STORAGE_PATH**: Directory path where authentication tokens will be stored
+
+**Syntax**: `npx line-mcp <email> <password> <storage_path>`
+
+**Example**: `npx line-mcp user@example.com mypassword ./line_storage`
+
+**Important**: The storage directory must exist before starting the server. If the specified path does not exist or is not accessible, the server will fail to start.
+
 ### Claude Desktop Configuration
 
 Add the following configuration to your `claude_desktop_config.json` file:
@@ -73,18 +82,50 @@ Add the following configuration to your `claude_desktop_config.json` file:
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+#### Basic Configuration
+
 ```json
 {
   "mcpServers": {
     "line-mcp": {
       "command": "npx",
-      "args": ["line-mcp", "your_line_email@example.com", "your_line_password"]
+      "args": ["line-mcp", "your_line_email@example.com", "your_line_password", "/path/to/storage/directory"]
     }
   }
 }
 ```
 
-**Important**: Replace `your_line_email@example.com` and `your_line_password` with your actual LINE account credentials.
+#### Advanced Configuration with Working Directory
+
+You can also specify a working directory (`cwd`) for the MCP server. This is useful when using relative paths or when you want to set a specific base directory for the server's operations:
+
+```json
+{
+  "mcpServers": {
+    "line-mcp": {
+      "command": "npx",
+      "args": [
+        "line-mcp@latest",
+        "your_line_email@example.com", 
+        "your_line_password",
+        "./line_auth_storage"
+      ],
+      "cwd": "/path/to/your/project/directory"
+    }
+  }
+}
+```
+
+**Configuration Options**:
+- `command`: The command to execute (usually `npx`)
+- `args`: Array of command line arguments including package name, email, password, and storage path
+- `cwd` (optional): Working directory for the MCP server execution. When specified, relative paths in the arguments will be resolved relative to this directory.
+
+**Important**: 
+- Replace `your_line_email@example.com` and `your_line_password` with your actual LINE account credentials.
+- Replace the storage path with the directory or file where authentication tokens will be stored.
+- **The storage directory must exist**: If the specified storage path does not exist, the server will fail to start with an error.
+- When using `cwd`, you can use relative paths like `./line_auth_storage` for the storage path, which will be resolved relative to the specified working directory.
 
 ## Dependencies
 
@@ -126,6 +167,14 @@ Main dependencies:
 - Verify recipient's MID is correct (can be obtained via `get_contacts`)
 - Check login status
 - Verify LINE account is not under message sending restrictions
+
+#### 4. Server Fails to Start
+**Symptoms**: Server fails to initialize or start
+**Solutions**:
+- Verify the storage directory path exists and is accessible
+- Check directory permissions (read/write access required)
+- Ensure all three command line arguments are properly specified in Claude Desktop configuration
+- Create the storage directory manually if it doesn't exist
 
 ## Limitations
 

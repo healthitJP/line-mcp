@@ -45,19 +45,14 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 
 **パラメータ**: なし
 
-#### 2. `status_login`
-**説明**: 現在のログイン状態を確認します
-
-**パラメータ**: なし
-
-#### 3. `get_contacts`
+#### 2. `get_contacts`
 **説明**: 連絡先を取得します。オプションで検索フィルターとトークン制限が可能です
 
 **パラメータ**:
 - `search` (オプション, string): 連絡先名での検索フィルター
 - `maxTokens` (オプション, number): レスポンスのトークン制限
 
-#### 4. `send_message`
+#### 3. `send_message`
 **説明**: 指定したユーザーにメッセージを送信します
 
 **パラメータ**:
@@ -66,6 +61,20 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 
 ## セットアップ
 
+### コマンドライン引数
+
+LINE MCPサーバーは3つのコマンドライン引数が必要です：
+
+1. **EMAIL**: LINEアカウントのメールアドレス
+2. **PASSWORD**: LINEアカウントのパスワード
+3. **STORAGE_PATH**: 認証トークンが保存されるディレクトリパス
+
+**構文**: `npx line-mcp <email> <password> <storage_path>`
+
+**例**: `npx line-mcp user@example.com mypassword ./line_storage`
+
+**重要**: ストレージディレクトリはサーバー開始前に存在している必要があります。指定されたパスが存在しないかアクセスできない場合、サーバーの起動が失敗します。
+
 ### Claude Desktop での設定
 
 `claude_desktop_config.json` ファイルに以下の設定を追加してください：
@@ -73,18 +82,50 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+#### 基本設定
+
 ```json
 {
   "mcpServers": {
     "line-mcp": {
       "command": "npx",
-      "args": ["line-mcp", "your_line_email@example.com", "your_line_password"]
+      "args": ["line-mcp", "your_line_email@example.com", "your_line_password", "/path/to/storage/directory"]
     }
   }
 }
 ```
 
-**重要**: `your_line_email@example.com` と `your_line_password` を実際のLINEアカウントの認証情報に置き換えてください。
+#### ワーキングディレクトリを指定した詳細設定
+
+MCPサーバーのワーキングディレクトリ（`cwd`）を指定することもできます。これは相対パスを使用する場合や、サーバーの動作の基準となる特定のディレクトリを設定したい場合に便利です：
+
+```json
+{
+  "mcpServers": {
+    "line-mcp": {
+      "command": "npx",
+      "args": [
+        "line-mcp@latest",
+        "your_line_email@example.com", 
+        "your_line_password",
+        "./line_auth_storage"
+      ],
+      "cwd": "/path/to/your/project/directory"
+    }
+  }
+}
+```
+
+**設定オプション**:
+- `command`: 実行するコマンド（通常は `npx`）
+- `args`: パッケージ名、メールアドレス、パスワード、ストレージパスを含むコマンドライン引数の配列
+- `cwd`（オプション）: MCPサーバー実行時のワーキングディレクトリ。指定した場合、引数内の相対パスはこのディレクトリを基準として解決されます。
+
+**重要**: 
+- `your_line_email@example.com` と `your_line_password` を実際のLINEアカウントの認証情報に置き換えてください。
+- ストレージパスを認証トークンが保存されるディレクトリまたはファイルのパスに置き換えてください。
+- **ストレージディレクトリが存在している必要があります**: 指定されたストレージパスが存在しない場合、サーバーはエラーで起動に失敗します。
+- `cwd`を使用する場合、ストレージパスに `./line_auth_storage` のような相対パスを使用できます。これは指定されたワーキングディレクトリを基準として解決されます。
 
 ## 依存関係
 
@@ -116,8 +157,7 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 #### 2. 連絡先が取得できない
 **症状**: `get_contacts`ツールが空の結果を返す
 **解決方法**:
-- まず`status_login`でログイン状態を確認
-- ログインしていない場合は、`login`ツールを実行
+- ログイン状態を確認し、ログインしていない場合は`login`ツールを実行
 - LINEアプリで連絡先が同期されているか確認
 
 #### 3. メッセージが送信できない
@@ -126,6 +166,14 @@ Claude DesktopでLINEメッセージング機能を使いたい方に最適で�
 - 受信者のMIDが正しいか確認（`get_contacts`で取得可能）
 - ログイン状態を確認
 - LINEアカウントがメッセージ送信制限を受けていないか確認
+
+#### 4. サーバーの起動に失敗する
+**症状**: サーバーの初期化または起動に失敗する
+**解決方法**:
+- ストレージディレクトリパスが存在し、アクセス可能であることを確認
+- ディレクトリのアクセス権限を確認（読み書きアクセスが必要）
+- Claude Desktop設定で3つのコマンドライン引数がすべて正しく指定されていることを確認
+- ストレージディレクトリが存在しない場合は手動で作成
 
 ## 制限事項
 

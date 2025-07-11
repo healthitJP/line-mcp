@@ -4,12 +4,15 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { get_encoding } from "tiktoken";
 
-import { loginWithPassword } from "@evex/linejs";
+import { loginWithAuthToken,Client } from "@evex/linejs";
+import { BaseClient } from "@evex/linejs/base";
+import { FileStorage } from "@evex/linejs/storage";
 
 
 const args = process.argv.slice(2);
 const EMAIL = args[0];
 const PASSWORD = args[1];
+const STORAGE_PATH = args[2];
 
 if (!EMAIL || !PASSWORD) {
   console.error("Usage: npx line-mcp <email> <password>");
@@ -30,14 +33,32 @@ interface FilteredContact {
 
 const server = new McpServer({
   name: "line-mcp",
-  version: "0.1.5"
+  version: "0.2.3"
 });
 
-let client: any = null;
+const storage = new FileStorage(
+  STORAGE_PATH
+);
+let baseClient = new BaseClient({
+  device: "IOSIPAD",
+  storage: storage,
+})
+baseClient.on("update:authtoken", async(token) => {
+  await storage.set("authtoken", token);
+});
+let client: Client | null = null;
 
-let loginStatus: 'idle' | 'logging_in' | 'success' | 'error' = 'idle';
-let loginError: string | null = null;
-let lastPincode: string | null = null;
+try {
+  const authtoken = await storage.get("authtoken");
+  if (typeof authtoken === "string") {
+    client = await loginWithAuthToken(authtoken,{
+      device: "IOSIPAD",
+      storage: storage,
+    });
+  }
+} catch (error) {
+  console.error('Error:', error);
+}
 
 const encoding = get_encoding("cl100k_base");
 
@@ -55,33 +76,26 @@ server.registerTool("login",
   },
   async () => {
     try {
-      loginStatus = 'logging_in';
-      loginError = null;
-      lastPincode = null;
 
-      const loginResult = await new Promise<{success: boolean, pincode?: string, error?: string}>((resolve) => {
-        loginWithPassword({
-          email: EMAIL,
-          password: PASSWORD,
-          onPincodeRequest(pincode) {
-            console.log('Pincode required:', pincode);
-            lastPincode = pincode;
-            resolve({ success: true, pincode });
-          }
-        }, { device: "IOSIPAD" })
-          .then((loginClient) => {
-            client = loginClient;
-            loginStatus = 'success';
-            console.log('Login completed!');
-            resolve({ success: true });
-          })
-          .catch((error) => {
-            loginStatus = 'error';
-            loginError = error.message;
-            console.error('Login error:', error);
-            resolve({ success: false, error: error.message });
-          });
-      });
+      const loginResult = await new Promise<{success: boolean, pincode?: string, error?: string}>((resolve) => {  
+        baseClient.on("pincall", (pincode) => {    
+          resolve({ success: true, pincode });  
+        });  
+    
+        baseClient.loginProcess.login({  
+          email: EMAIL,  
+          password: PASSWORD,  
+        })  
+          .then(async () => {  
+            await baseClient.loginProcess.ready();  
+            client = new Client(baseClient);  
+            resolve({ success: true });  
+          })  
+          .catch((error) => {  
+            console.error('Login error:', error);  
+            resolve({ success: false, error: error.message });  
+          });  
+      });       
 
       if (!loginResult.success) {
         return {
@@ -117,35 +131,6 @@ server.registerTool("login",
         isError: true
       };
     }
-  }
-);
-
-server.registerTool("status_login",
-  {
-    title: "Check Login Status",
-    description: "Check the current login status",
-    inputSchema: {}
-  },
-  async () => {
-    let statusMessage = "";
-    switch (loginStatus) {
-      case 'idle':
-        statusMessage = "Not logged in";
-        break;
-      case 'logging_in':
-        statusMessage = "Login in progress...";
-        break;
-      case 'success':
-        statusMessage = "Login successful!";
-        break;
-      case 'error':
-        statusMessage = `Login error: ${loginError}`;
-        break;
-    }
-
-    return {
-      content: [{ type: "text", text: statusMessage }]
-    };
   }
 );
 
