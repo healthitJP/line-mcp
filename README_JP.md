@@ -86,8 +86,8 @@ LINE_PASSWORD=your_line_password
 {
   "mcpServers": {
     "line-mcp": {
-      "command": "node",
-      "args": ["/path/to/your/line-mcp/src/index.js"],
+      "command": "npx",
+      "args": ["line-mcp"],
       "env": {
         "LINE_EMAIL": "your_line_email@example.com",
         "LINE_PASSWORD": "your_line_password"

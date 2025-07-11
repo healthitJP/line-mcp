@@ -82,12 +82,13 @@ Add the following configuration to your `claude_desktop_config.json` file:
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+
 ```json
 {
   "mcpServers": {
     "line-mcp": {
-      "command": "node",
-      "args": ["/path/to/your/line-mcp/src/index.js"],
+      "command": "npx",
+      "args": ["line-mcp"],
       "env": {
         "LINE_EMAIL": "your_line_email@example.com",
         "LINE_PASSWORD": "your_line_password"
@@ -96,6 +97,7 @@ Add the following configuration to your `claude_desktop_config.json` file:
   }
 }
 ```
+
 
 ## Dependencies
 

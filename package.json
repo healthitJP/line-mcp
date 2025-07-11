@@ -1,6 +1,6 @@
 {
     "name": "line-mcp",
-    "version": "0.1.1",
+    "version": "0.1.3",
     "description": "Model Context Protocol (MCP) server for LINE messaging integration with AI assistants.",
     "keywords": [
         "mcp",
@@ -17,11 +17,21 @@
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "bin": {
+        "line-mcp": "./dist/index.js"
+    },
+    "files": [
+        "dist/**/*",
+        "README.md",
+        "README_JP.md",
+        "LICENSE"
+    ],
     "scripts": {
         "build": "tsc",
         "start": "npm run build && node dist/index.js",
         "dev": "npm run build && npx mcp-inspector node dist/index.js",
-        "dev:tsx": "npx mcp-inspector tsx src/index.ts"
+        "dev:tsx": "npx mcp-inspector tsx src/index.ts",
+        "prepublishOnly": "npm run build"
     },
     "devDependencies": {
         "@types/node": "^24.0.13",
