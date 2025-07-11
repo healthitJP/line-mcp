@@ -1,6 +1,19 @@
 {
     "name": "line-mcp",
-    "version": "0.1.0",
+    "version": "0.1.1",
+    "description": "Model Context Protocol (MCP) server for LINE messaging integration with AI assistants.",
+    "keywords": [
+        "mcp",
+        "line",
+        "ai",
+        "assistant"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/healthitJP/line-mcp",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/healthitJP/line-mcp.git"
+    },
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
