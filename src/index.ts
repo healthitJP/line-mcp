@@ -20,15 +20,6 @@ async function testLineJS() {
         console.log('Enter this pincode to your LINE app:', pincode);
       }
     }, { device: "DESKTOPMAC" });
-
-    console.log("ログイン成功！");
-
-    console.log("ユーザー情報を取得中...");
-    const users = await client.fetchUsers();
-    
-    console.log("取得したユーザー数:", users.length);
-    console.log("ユーザー情報:", JSON.stringify(users, null, 2));
-
   } catch (error) {
     console.error("エラーが発生しました:", error);
   }
